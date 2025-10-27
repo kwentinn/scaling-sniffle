@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
-import './ConnectFour.css';
 
 const ROWS = 6;
 const COLS = 7;
@@ -148,45 +147,86 @@ const ConnectFour = () => {
   }
 
   return (
-    <div className="connect-four">
-      <div className="game-status">
+    <div className="flex flex-col items-center gap-8 p-8">
+      <div className="min-h-[60px] flex items-center justify-center">
         {winner ? (
-          <h2 className="winner-message">{t('wins', { player: winner })}</h2>
+          <h2 className="text-[1.8rem] m-0 text-green-500 animate-pulse">{t('wins', { player: winner })}</h2>
         ) : gameOver ? (
-          <h2 className="draw-message">{t('draw')}</h2>
+          <h2 className="text-[1.8rem] m-0 text-amber-500">{t('draw')}</h2>
         ) : (
-          <h2>
-            {t('currentTurn')}: <span className={`player-indicator player${currentPlayer}`}>
+          <h2 className="text-[1.8rem] m-0 text-gray-800 md:text-[1.3rem]">
+            {t('currentTurn')}: <span className={`font-bold py-1.5 px-3 rounded-lg ${
+              currentPlayer === PLAYER1 
+                ? 'bg-red-500 text-white' 
+                : 'bg-amber-300 text-gray-800'
+            }`}>
               {t('player')} {currentPlayer}
             </span>
           </h2>
         )}
       </div>
 
-      <div className="board">
+      <div className="bg-blue-600 p-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] flex flex-col gap-2">
         {board.map((row, rowIndex) => (
-          <div key={rowIndex} className="board-row">
+          <div key={rowIndex} className="flex gap-2">
             {row.map((cell, colIndex) => (
               <div
                 key={colIndex}
-                className={`cell ${cell === PLAYER1 ? 'player1' : cell === PLAYER2 ? 'player2' : ''} ${
-                  isWinningCell(rowIndex, colIndex) ? 'winning' : ''
+                className={`w-[70px] h-[70px] bg-white rounded-full cursor-pointer flex items-center justify-center transition-transform duration-100 relative hover:scale-105 md:w-[50px] md:h-[50px] sm:w-10 sm:h-10 ${
+                  cell === PLAYER1 ? 'bg-red-50' : cell === PLAYER2 ? 'bg-amber-50' : ''
+                } ${
+                  isWinningCell(rowIndex, colIndex) ? 'animate-[winning-cell_0.6s_ease-in-out_infinite] shadow-[0_0_20px_rgba(34,197,94,0.8)]' : ''
                 }`}
                 onClick={() => handleColumnClick(colIndex)}
                 role="button"
                 tabIndex={0}
                 aria-label={t('dropPiece', { column: colIndex + 1 })}
               >
-                {cell !== EMPTY && <div className="piece" />}
+                {cell !== EMPTY && (
+                  <div className={`w-4/5 h-4/5 rounded-full absolute animate-[drop_0.3s_ease-out] ${
+                    cell === PLAYER1 
+                      ? 'bg-gradient-radial from-red-400 to-red-500 shadow-[inset_-2px_-2px_4px_rgba(0,0,0,0.3)]'
+                      : 'bg-gradient-radial from-yellow-200 to-amber-400 shadow-[inset_-2px_-2px_4px_rgba(0,0,0,0.2)]'
+                  }`} />
+                )}
               </div>
             ))}
           </div>
         ))}
       </div>
 
-      <button className="new-game-btn" onClick={resetGame}>
+      <button 
+        className="px-8 py-3 text-[1.1rem] font-bold bg-green-500 text-white border-none rounded-lg cursor-pointer transition-all duration-200 shadow-[0_4px_6px_rgba(0,0,0,0.1)] hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_6px_8px_rgba(0,0,0,0.15)] active:translate-y-0 md:text-base md:px-6 md:py-2.5"
+        onClick={resetGame}
+      >
         {t('newGame')}
       </button>
+
+      <style>{`
+        @keyframes drop {
+          from {
+            transform: translateY(-500%) scale(0.8);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+
+        @keyframes winning-cell {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+
+        .bg-gradient-radial {
+          background: radial-gradient(circle at 30% 30%, var(--tw-gradient-stops));
+        }
+      `}</style>
     </div>
   );
 };

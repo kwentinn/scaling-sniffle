@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import './LanguageSwitcher.css';
 
 const languages = [
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
@@ -16,18 +15,22 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className="language-switcher">
-      <label className="language-label">{t('language')}:</label>
-      <div className="language-buttons">
+    <div className="flex flex-col items-center gap-4 mb-4">
+      <label className="text-base font-semibold text-gray-600">{t('language')}:</label>
+      <div className="flex gap-2 flex-wrap justify-center sm:gap-1.5">
         {languages.map((lang) => (
           <button
             key={lang.code}
             onClick={() => changeLanguage(lang.code)}
-            className={`lang-btn ${i18n.language === lang.code ? 'active' : ''}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 cursor-pointer transition-all duration-200 text-[0.95rem] hover:bg-gray-200 hover:border-gray-400 hover:-translate-y-0.5 sm:px-3 sm:py-1.5 sm:text-[0.85rem] ${
+              i18n.language === lang.code 
+                ? 'bg-blue-500 border-blue-600 text-white font-bold' 
+                : 'bg-gray-100 border-gray-300'
+            }`}
             title={lang.name}
           >
-            <span className="flag">{lang.flag}</span>
-            <span className="lang-name">{lang.name}</span>
+            <span className="text-[1.3rem] sm:text-[1.1rem]">{lang.flag}</span>
+            <span className="text-[0.9rem] sm:text-[0.8rem]">{lang.name}</span>
           </button>
         ))}
       </div>
