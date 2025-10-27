@@ -11,7 +11,14 @@ const resources = {
       draw: "Match nul !",
       newGame: "Nouvelle partie",
       language: "Langue",
-      dropPiece: "Déposer le pion dans la colonne {{column}}"
+      dropPiece: "Déposer le pion dans la colonne {{column}}",
+      gravity: "Gravité",
+      gravity_down: "Bas",
+      gravity_up: "Haut",
+      gravity_left: "Gauche",
+      gravity_right: "Droite",
+      turn: "Tour",
+      gravityChangeEvent: "🌀 Changement de gravité !"
     }
   },
   en: {
@@ -23,7 +30,14 @@ const resources = {
       draw: "It's a draw!",
       newGame: "New Game",
       language: "Language",
-      dropPiece: "Drop piece in column {{column}}"
+      dropPiece: "Drop piece in column {{column}}",
+      gravity: "Gravity",
+      gravity_down: "Down",
+      gravity_up: "Up",
+      gravity_left: "Left",
+      gravity_right: "Right",
+      turn: "Turn",
+      gravityChangeEvent: "🌀 Gravity Change!"
     }
   },
   it: {
@@ -35,7 +49,14 @@ const resources = {
       draw: "È un pareggio!",
       newGame: "Nuova Partita",
       language: "Lingua",
-      dropPiece: "Inserisci il gettone nella colonna {{column}}"
+      dropPiece: "Inserisci il gettone nella colonna {{column}}",
+      gravity: "Gravità",
+      gravity_down: "Giù",
+      gravity_up: "Su",
+      gravity_left: "Sinistra",
+      gravity_right: "Destra",
+      turn: "Turno",
+      gravityChangeEvent: "🌀 Cambio di gravità!"
     }
   },
   oc: {
@@ -47,7 +68,14 @@ const resources = {
       draw: "Egalitat!",
       newGame: "Partida novèla",
       language: "Lenga",
-      dropPiece: "Depausar lo pion dins la colomna {{column}}"
+      dropPiece: "Depausar lo pion dins la colomna {{column}}",
+      gravity: "Gravitat",
+      gravity_down: "Bas",
+      gravity_up: "Naut",
+      gravity_left: "Esquèrra",
+      gravity_right: "Drecha",
+      turn: "Torn",
+      gravityChangeEvent: "🌀 Cambiament de gravitat!"
     }
   }
 };

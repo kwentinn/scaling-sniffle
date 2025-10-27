@@ -7,6 +7,12 @@ const COLS = 7;
 const EMPTY = 0;
 const PLAYER1 = 1;
 const PLAYER2 = 2;
+const GRAVITY_CHANGE_INTERVAL = 10; // Gravity changes every N turns
+
+const GRAVITY_DOWN = 'down';
+const GRAVITY_UP = 'up';
+const GRAVITY_LEFT = 'left';
+const GRAVITY_RIGHT = 'right';
 
 const ConnectFour = () => {
   const { t } = useTranslation();
@@ -15,6 +21,9 @@ const ConnectFour = () => {
   const [winner, setWinner] = useState(null);
   const [winningCells, setWinningCells] = useState([]);
   const [gameOver, setGameOver] = useState(false);
+  const [turnCount, setTurnCount] = useState(0);
+  const [gravity, setGravity] = useState(GRAVITY_DOWN);
+  const [gravityChanged, setGravityChanged] = useState(false);
 
   function createEmptyBoard() {
     return Array(ROWS).fill(null).map(() => Array(COLS).fill(EMPTY));
@@ -27,6 +36,56 @@ const ConnectFour = () => {
       }
     }
     return -1;
+  }
+
+  function getEmptyPositionWithGravity(rowOrCol) {
+    switch (gravity) {
+      case GRAVITY_DOWN:
+        // Original behavior: pieces fall down
+        return getLowestEmptyRow(rowOrCol);
+      
+      case GRAVITY_UP:
+        // Pieces fall up (to the top)
+        for (let row = 0; row < ROWS; row++) {
+          if (board[row][rowOrCol] === EMPTY) {
+            return row;
+          }
+        }
+        return -1;
+      
+      case GRAVITY_LEFT:
+        // Pieces fall left
+        for (let col = 0; col < COLS; col++) {
+          if (board[rowOrCol][col] === EMPTY) {
+            return col;
+          }
+        }
+        return -1;
+      
+      case GRAVITY_RIGHT:
+        // Pieces fall right
+        for (let col = COLS - 1; col >= 0; col--) {
+          if (board[rowOrCol][col] === EMPTY) {
+            return col;
+          }
+        }
+        return -1;
+      
+      default:
+        return getLowestEmptyRow(rowOrCol);
+    }
+  }
+
+  function changeGravityRandomly() {
+    const directions = [GRAVITY_DOWN, GRAVITY_UP, GRAVITY_LEFT, GRAVITY_RIGHT];
+    const newGravity = directions[Math.floor(Math.random() * directions.length)];
+    setGravity(newGravity);
+    setGravityChanged(true);
+    
+    // Reset the flag after animation
+    setTimeout(() => {
+      setGravityChanged(false);
+    }, 3000);
   }
 
   function checkWin(row, col, player, boardState) {
@@ -80,16 +139,38 @@ const ConnectFour = () => {
   function handleColumnClick(col) {
     if (gameOver) return;
 
-    const row = getLowestEmptyRow(col);
-    if (row === -1) return; // Column is full
-
+    let row, newCol;
     const newBoard = board.map(r => [...r]);
-    newBoard[row][col] = currentPlayer;
+
+    if (gravity === GRAVITY_LEFT || gravity === GRAVITY_RIGHT) {
+      // For horizontal gravity: the clicked "column" is actually the row,
+      // and pieces slide horizontally within that row
+      row = col; // The clicked column index becomes the row to place in
+      newCol = getEmptyPositionWithGravity(row); // Find the leftmost/rightmost empty cell in that row
+      if (newCol === -1) return; // Row is full
+      newBoard[row][newCol] = currentPlayer;
+    } else {
+      // For vertical gravity (up/down): traditional behavior
+      // Pieces drop/rise in the clicked column
+      row = getEmptyPositionWithGravity(col);
+      if (row === -1) return; // Column is full
+      newCol = col;
+      newBoard[row][newCol] = currentPlayer;
+    }
+
     setBoard(newBoard);
+    
+    const newTurnCount = turnCount + 1;
+    setTurnCount(newTurnCount);
+    
+    // Check for gravity change event
+    if (newTurnCount > 0 && newTurnCount % GRAVITY_CHANGE_INTERVAL === 0) {
+      changeGravityRandomly();
+    }
 
     // Update board first, then check win
     setTimeout(() => {
-      const winCells = checkWin(row, col, currentPlayer, newBoard);
+      const winCells = checkWin(row, newCol, currentPlayer, newBoard);
       if (winCells.length >= 4) {
         setWinner(currentPlayer);
         setWinningCells(winCells);
@@ -140,10 +221,23 @@ const ConnectFour = () => {
     setWinner(null);
     setWinningCells([]);
     setGameOver(false);
+    setTurnCount(0);
+    setGravity(GRAVITY_DOWN);
+    setGravityChanged(false);
   }
 
   function isWinningCell(row, col) {
     return winningCells.some(([r, c]) => r === row && c === col);
+  }
+
+  function getGravityIcon(direction) {
+    switch (direction) {
+      case GRAVITY_DOWN: return '⬇️';
+      case GRAVITY_UP: return '⬆️';
+      case GRAVITY_LEFT: return '⬅️';
+      case GRAVITY_RIGHT: return '➡️';
+      default: return '⬇️';
+    }
   }
 
   return (
@@ -165,6 +259,24 @@ const ConnectFour = () => {
           </h2>
         )}
       </div>
+
+      {/* Gravity indicator */}
+      <div className="flex items-center gap-4 text-lg">
+        <span className="font-semibold text-gray-700">{t('gravity')}:</span>
+        <span className={`px-4 py-2 rounded-lg font-bold transition-all ${
+          gravityChanged ? 'bg-purple-500 text-white animate-bounce' : 'bg-gray-200 text-gray-800'
+        }`}>
+          {t(`gravity_${gravity}`)} {getGravityIcon(gravity)}
+        </span>
+        <span className="text-sm text-gray-500">{t('turn')}: {turnCount}</span>
+      </div>
+
+      {/* Gravity change notification */}
+      {gravityChanged && (
+        <div className="bg-purple-100 border-2 border-purple-500 rounded-lg px-6 py-3 animate-pulse">
+          <p className="text-purple-700 font-bold m-0">{t('gravityChangeEvent')}</p>
+        </div>
+      )}
 
       <div className="bg-blue-600 p-4 rounded-2xl shadow-xl flex flex-col gap-2 max-md:p-2 max-md:gap-1.5 max-sm:p-1.5 max-sm:gap-1">
         {board.map((row, rowIndex) => (
