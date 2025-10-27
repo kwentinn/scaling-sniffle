@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
-import './ConnectFour.css';
 
 const ROWS = 6;
 const COLS = 7;
@@ -148,45 +147,101 @@ const ConnectFour = () => {
   }
 
   return (
-    <div className="connect-four">
-      <div className="game-status">
+    <div className="flex flex-col items-center gap-8 p-8">
+      <div className="min-h-[60px] flex items-center justify-center">
         {winner ? (
-          <h2 className="winner-message">{t('wins', { player: winner })}</h2>
+          <h2 className="text-3xl max-md:text-2xl m-0 text-green-500 animate-pulse">{t('wins', { player: winner })}</h2>
         ) : gameOver ? (
-          <h2 className="draw-message">{t('draw')}</h2>
+          <h2 className="text-3xl max-md:text-2xl m-0 text-amber-500">{t('draw')}</h2>
         ) : (
-          <h2>
-            {t('currentTurn')}: <span className={`player-indicator player${currentPlayer}`}>
+          <h2 className="text-3xl max-md:text-xl m-0 text-gray-800">
+            {t('currentTurn')}: <span className={`font-bold py-1.5 px-3 rounded-lg ${
+              currentPlayer === PLAYER1 
+                ? 'bg-red-500 text-white' 
+                : 'bg-amber-300 text-gray-800'
+            }`}>
               {t('player')} {currentPlayer}
             </span>
           </h2>
         )}
       </div>
 
-      <div className="board">
+      <div className="bg-blue-600 p-4 rounded-2xl shadow-xl flex flex-col gap-2 max-md:p-2 max-md:gap-1.5 max-sm:p-1.5 max-sm:gap-1">
         {board.map((row, rowIndex) => (
-          <div key={rowIndex} className="board-row">
+          <div key={rowIndex} className="flex gap-2 max-md:gap-1.5 max-sm:gap-1">
             {row.map((cell, colIndex) => (
               <div
                 key={colIndex}
-                className={`cell ${cell === PLAYER1 ? 'player1' : cell === PLAYER2 ? 'player2' : ''} ${
-                  isWinningCell(rowIndex, colIndex) ? 'winning' : ''
+                className={`w-[70px] h-[70px] max-md:w-[50px] max-md:h-[50px] max-sm:w-10 max-sm:h-10 bg-white rounded-full cursor-pointer flex items-center justify-center transition-transform duration-100 relative hover:scale-105 ${
+                  cell === PLAYER1 ? 'bg-red-50' : cell === PLAYER2 ? 'bg-amber-50' : ''
+                } ${
+                  isWinningCell(rowIndex, colIndex) ? 'winning-cell' : ''
                 }`}
                 onClick={() => handleColumnClick(colIndex)}
                 role="button"
                 tabIndex={0}
                 aria-label={t('dropPiece', { column: colIndex + 1 })}
               >
-                {cell !== EMPTY && <div className="piece" />}
+                {cell !== EMPTY && (
+                  <div 
+                    className={`w-4/5 h-4/5 rounded-full absolute drop-animation ${
+                      cell === PLAYER1 ? 'piece-player1' : 'piece-player2'
+                    }`}
+                  />
+                )}
               </div>
             ))}
           </div>
         ))}
       </div>
 
-      <button className="new-game-btn" onClick={resetGame}>
+      <button 
+        className="px-8 py-3 max-md:px-6 max-md:py-2.5 text-lg max-md:text-base font-bold bg-green-500 text-white border-none rounded-lg cursor-pointer transition-all duration-200 shadow-md hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+        onClick={resetGame}
+      >
         {t('newGame')}
       </button>
+
+      <style>{`
+        .drop-animation {
+          animation: drop 0.3s ease-out;
+        }
+
+        .winning-cell {
+          animation: winning-cell 0.6s ease-in-out infinite;
+          box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+        }
+
+        .piece-player1 {
+          background: radial-gradient(circle at 30% 30%, #f87171, #ef4444);
+          box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .piece-player2 {
+          background: radial-gradient(circle at 30% 30%, #fde047, #fbbf24);
+          box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes drop {
+          from {
+            transform: translateY(-500%) scale(0.8);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+
+        @keyframes winning-cell {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+      `}</style>
     </div>
   );
 };
