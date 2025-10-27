@@ -7,6 +7,7 @@ const COLS = 7;
 const EMPTY = 0;
 const PLAYER1 = 1;
 const PLAYER2 = 2;
+const GRAVITY_CHANGE_INTERVAL = 10; // Gravity changes every N turns
 
 const GRAVITY_DOWN = 'down';
 const GRAVITY_UP = 'up';
@@ -142,13 +143,15 @@ const ConnectFour = () => {
     const newBoard = board.map(r => [...r]);
 
     if (gravity === GRAVITY_LEFT || gravity === GRAVITY_RIGHT) {
-      // For horizontal gravity, col becomes the row index
-      row = col;
-      newCol = getEmptyPositionWithGravity(row);
+      // For horizontal gravity: the clicked "column" is actually the row,
+      // and pieces slide horizontally within that row
+      row = col; // The clicked column index becomes the row to place in
+      newCol = getEmptyPositionWithGravity(row); // Find the leftmost/rightmost empty cell in that row
       if (newCol === -1) return; // Row is full
       newBoard[row][newCol] = currentPlayer;
     } else {
-      // For vertical gravity (up/down), col stays as column
+      // For vertical gravity (up/down): traditional behavior
+      // Pieces drop/rise in the clicked column
       row = getEmptyPositionWithGravity(col);
       if (row === -1) return; // Column is full
       newCol = col;
@@ -160,8 +163,8 @@ const ConnectFour = () => {
     const newTurnCount = turnCount + 1;
     setTurnCount(newTurnCount);
     
-    // Check for gravity change event after turn 10
-    if (newTurnCount > 0 && newTurnCount % 10 === 0) {
+    // Check for gravity change event
+    if (newTurnCount > 0 && newTurnCount % GRAVITY_CHANGE_INTERVAL === 0) {
       changeGravityRandomly();
     }
 
