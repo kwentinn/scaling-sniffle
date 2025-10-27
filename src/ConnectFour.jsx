@@ -30,33 +30,33 @@ const ConnectFour = () => {
     return -1;
   }
 
-  function checkWin(row, col, player) {
+  function checkWin(row, col, player, boardState) {
     // Check horizontal
-    const horizontal = checkDirection(row, col, player, 0, 1);
+    const horizontal = checkDirection(row, col, player, 0, 1, boardState);
     if (horizontal.length >= 4) return horizontal;
 
     // Check vertical
-    const vertical = checkDirection(row, col, player, 1, 0);
+    const vertical = checkDirection(row, col, player, 1, 0, boardState);
     if (vertical.length >= 4) return vertical;
 
     // Check diagonal (/)
-    const diagonal1 = checkDirection(row, col, player, -1, 1);
+    const diagonal1 = checkDirection(row, col, player, -1, 1, boardState);
     if (diagonal1.length >= 4) return diagonal1;
 
     // Check diagonal (\)
-    const diagonal2 = checkDirection(row, col, player, 1, 1);
+    const diagonal2 = checkDirection(row, col, player, 1, 1, boardState);
     if (diagonal2.length >= 4) return diagonal2;
 
     return [];
   }
 
-  function checkDirection(row, col, player, rowDir, colDir) {
+  function checkDirection(row, col, player, rowDir, colDir, boardState) {
     const cells = [[row, col]];
     
     // Check in positive direction
     let r = row + rowDir;
     let c = col + colDir;
-    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
+    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && boardState[r][c] === player) {
       cells.push([r, c]);
       r += rowDir;
       c += colDir;
@@ -65,7 +65,7 @@ const ConnectFour = () => {
     // Check in negative direction
     r = row - rowDir;
     c = col - colDir;
-    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
+    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && boardState[r][c] === player) {
       cells.push([r, c]);
       r -= rowDir;
       c -= colDir;
@@ -74,8 +74,8 @@ const ConnectFour = () => {
     return cells;
   }
 
-  function isBoardFull() {
-    return board[0].every(cell => cell !== EMPTY);
+  function isBoardFull(boardState) {
+    return boardState[0].every(cell => cell !== EMPTY);
   }
 
   function handleColumnClick(col) {
@@ -90,13 +90,13 @@ const ConnectFour = () => {
 
     // Update board first, then check win
     setTimeout(() => {
-      const winCells = checkWin(row, col, currentPlayer);
+      const winCells = checkWin(row, col, currentPlayer, newBoard);
       if (winCells.length >= 4) {
         setWinner(currentPlayer);
         setWinningCells(winCells);
         setGameOver(true);
         triggerConfetti();
-      } else if (isBoardFull()) {
+      } else if (isBoardFull(newBoard)) {
         setGameOver(true);
       } else {
         setCurrentPlayer(currentPlayer === PLAYER1 ? PLAYER2 : PLAYER1);
